@@ -20,14 +20,22 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-3+!s&np4f$nb%xouguzzfw7r_^22)x2^dp()e(b%9)a^$cwla'
+SECRET_KEY = os.environ.get('SECRET_KEY','-3+!s&np4f$nb%xouguzzfw7r_^22)x2^dp()e(b%9)a^$cwla')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER='karan.gaikwad99@gmail.com'
+EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_PASSWORD')
+EMAIL_PORT=587
+EMAIL_USE_TLS='TRUE'
+DEFAULT_FROM_EMAIL='Karan <karan.gaikwad99@gmail.com>'
+ADMINS= (
+   ('Karan','karan.gaikwad99@gmail.com'),
+)
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'marathi',
     'posts',
-    'embed_video',
+   
     
 ]
 
@@ -84,6 +92,10 @@ DATABASES = {
     }
 }
 
+import dj_database_url
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
+# DATABASES['default']['CONN_MAX_AGE'] = 500
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators

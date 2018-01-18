@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+from marathi.settings.aws import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -20,14 +21,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '-3+!s&np4f$nb%xouguzzfw7r_^22)x2^dp()e(b%9)a^$cwla'
-
+SECRET_KEY = os.environ.get('SECRET_KEY','-3+!s&np4f$nb%xouguzzfw7r_^22)x2^dp()e(b%9)a^$cwla')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ahirani.herokuapp.com','.ahiranikasturi.com']
 
-
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER='karan.gaikwad99@gmail.com'
+EMAIL_HOST_PASSWORD=os.environ.get('EMAIL_PASSWORD')
+EMAIL_PORT=587
+EMAIL_USE_TLS='TRUE'
+DEFAULT_FROM_EMAIL='Karan <karan.gaikwad99@gmail.com>'
+ADMINS= (
+   ('Karan','karan.gaikwad99@gmail.com'),
+)
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,7 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'marathi',
     'posts',
-    'embed_video',
+    
+    'storages',
     
 ]
 
@@ -84,6 +93,10 @@ DATABASES = {
     }
 }
 
+import dj_database_url
+db_from_env = dj_database_url.config()
+DATABASES['default'].update(db_from_env)
+# DATABASES['default']['CONN_MAX_AGE'] = 500
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -123,13 +136,41 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-    #'/var/www/static/',
-]
+
 
 #STATIC_ROOT =  BASE_DIR + '/static/'
 MEDIA_ROOT = 'static/images/'
 MEDIA_URL = '/images/'
 
 
+MEDIA_URL = '/media/'
+
+
+
+AWS_ACCESS_KEY_ID = "AKIAI4MRZQ64C4SGAYQQ"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = 'ahirani-static'
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',
+}
+AWS_LOCATION = 'static'
+
+#STATICFILES_DIRS = [
+ #   os.path.join(BASE_DIR, 'static'),
+#]
+MEDIA_URL ='https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+STATIC_URL = 'https://%s/%s/' % (AWS_S3_CUSTOM_DOMAIN, AWS_LOCATION)
+ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'marathi.settings.aws.utils.MediaRootS3BotoStorage'
+
+CORS_REPLACE_HTTPS_REFERER      = True
+HOST_SCHEME                     = "https://"
+SECURE_PROXY_SSL_HEADER         = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT             = True
+SESSION_COOKIE_SECURE           = True
+CSRF_COOKIE_SECURE              = True
+SECURE_HSTS_INCLUDE_SUBDOMAINS  = True
+SECURE_HSTS_SECONDS             = 1000000
+SECURE_FRAME_DENY               = True
